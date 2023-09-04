@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybastis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespase는 경로와 클래스명을 적는다 -->
+<mapper namespace="org.green.mapper.AuthMapper">
+	<insert id="insert">
+		insert into tbl_member_auth(userid,auth) values(#{userid},#{auth})
+	</insert>
+	<!-- 회원탈퇴 -->
+	<delete id="delete">
+		delete from tbl_member_auth where userid=#{userid}
+	</delete>
+	<update id="adminUpdate">
+		update tbl_member_auth set auth=#{auth} where userid=#{userid}
+	</update>
+</mapper>

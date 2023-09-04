@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybastis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespase는 경로와 클래스명을 적는다 -->
+<mapper namespace="org.green.mapper.BoardMapper">
+	<!-- 아이디는 추상 메소드 이름과 동일하게 -->
+	<sql id="criteria">
+		<if test="type != null">
+			<trim prefix="where">
+				<!-- separator 속성 : 사이에 값 추가 -->
+				<foreach collection="typeArr" item="type" separator="or">
+					<if test="type == 'T'.toString()">
+						title like '%'||#{keyword}||'%'
+					</if>
+					<if test="type == 'W'.toString()">
+						writer like '%'||#{keyword}||'%'
+					</if>
+					<if test="type == 'C'.toString()">
+						content like '%'||#{keyword}||'%'
+					</if>
+				</foreach>
+			</trim>
+		</if>
+	</sql>
+	<insert id="insert">
+		<!-- 쿼리문에 세미콜론은 붙이지 않는다. -->
+		insert into tbl_board(bnum,regdate, title, content, writer)
+		values(seq_table_num.nextval,sysdate, #{title}, #{content}, #{writer})
+	</insert>
+	<!-- 리턴타입이 있는경우 resultType 지정 경로는 타입의경로와 클래스명 -->
+	<select id="view" resultType="org.green.domain.BoardVO">
+		Select * from tbl_board where bnum = #{bnum}
+	</select>
+	<!-- 자유게시판 목록 -->
+	<select id="getListWithPaging" resultType="org.green.domain.BoardVO">
+		select * from
+		(select Tb.*, rownum rNum from
+    		(select * from tbl_board
+    		<include refid="criteria" /> ) Tb 
+		) where rNum between (#{pageNum}-1)*#{amount}+1 and #{pageNum} * #{amount}
+	</select>
+	<!-- 자유게시판 전체 글 개수 -->
+	<select id="getTotalCount" resultType="int">
+		select count(*) from tbl_board <include refid="criteria"/>
+	</select>
+	<!-- 글 조회수 증가 -->
+	<update id="updateCount">
+		update tbl_board set visitcount = visitcount+1 where bnum=#{bnum}
+	</update>
+	<!-- 수정 -->
+	<update id="update">
+		update tbl_board set title=#{title}, writer=#{writer},content=#{content} where bnum=#{bnum}
+	</update>
+	<!-- 삭제 -->
+	<delete id="delete">
+		delete from tbl_board where bnum=#{bnum}
+	</delete>
+	<select id="findByBnum" resultType="org.green.domain.BoardVO">
+		select * from tbl_board where bnum = #{bnum}
+	</select>
+	<insert id="insertSelectKey">
+		insert into tbl_board(bnum, title, content, writer)
+		values(seq_table_num.nextval, #{title}, #{content}, #{writer})
+		<selectKey keyProperty="bnum" order="AFTER" resultType="int">
+			select seq_table_num.currval from dual
+		</selectKey>
+	</insert>
+</mapper>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybastis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespase는 경로와 클래스명을 적는다 -->
+<mapper namespace="org.green.mapper.GameMapper">
+	<sql id="criteria">
+		<if test="type != null">
+			<trim prefix="where">
+				<!-- separator 속성 : 사이에 값 추가 -->
+				<foreach collection="typeArr" item="type" separator="or">
+					<if test="type == 'T'.toString()">
+						title like '%'||#{keyword}||'%'
+					</if>
+					<if test="type == 'G'.toString()">
+						genre like '%'||#{keyword}||'%'
+					</if>
+					<if test="type == 'P'.toString()">
+						platform like '%'||#{keyword}||'%'
+					</if>
+				</foreach>
+			</trim>
+		</if>
+	</sql>
+	<sql id="sort">
+		<if test="sort == null">
+		ORDER BY releasedate desc
+		</if>
+		<if test="sort == 'title'">
+		ORDER BY title
+		</if>
+		<if test="sort == 'title desc'">
+		ORDER BY title DESC
+		</if>
+		<if test="sort == 'releasedate desc'">
+		ORDER BY releasedate DESC
+		</if>
+		<if test="sort == 'releasedate'">
+		ORDER BY releasedate
+		</if>
+		<if test="sort == 'metascore desc'">
+		ORDER BY metascore desc
+		</if>
+		<if test="sort == 'metascore'">
+		ORDER BY metascore
+		</if>
+		<if test="sort == 'visitcount desc'">
+		ORDER BY visitcount desc
+		</if>
+	</sql>
+	<insert id="insert">
+		insert into tbl_game(gnum, title, releasedate, price, metascore, youtube, content, genre, filename, uploadpath, fullname, visitcount, platform, developer)
+		values(seq_game_num.nextval,#{title},#{releasedate},#{price},#{metascore},#{youtube},#{content},#{genre},#{fileName},#{uploadPath},#{fullname},#{visitcount},#{platform}, #{developer})
+	</insert>
+	<select id="getListWithPaging" resultType="org.green.domain.GameVO">
+		select * from
+		(select Tb.*, rownum rNum from
+    		(select * from tbl_game 
+    		<include refid="criteria"></include>
+    		<include refid="sort" />) Tb
+		) where rNum between (#{pageNum}-1)*#{amount}+1 and #{pageNum} * #{amount}
+		<include refid="sort" />
+	</select>
+	<select id="getTotalCount" resultType="int">
+		select count(*) from tbl_game <include refid="criteria"></include>
+	</select>
+	<select id="searchGame" resultType="org.green.domain.GameVO">
+		select * from tbl_game
+		<!--  prefix: 앞에 쿼리 추가 suffix : 뒤에 쿼리 추가 -->
+		<trim prefix="where">
+		<!-- separator 속성 : 사이에 값 추가 -->
+		<foreach collection="map" index="key" item="val" separator="or">
+			<if test="key == 'T'.toString()">
+				title like '%'||#{val}||'%'
+			</if>
+			<if test="key == 'G'.toString()">
+				genre like '%'||#{val}||'%'
+			</if>
+			<if test="key == 'P'.toString()">
+				platform like '%'||#{val}||'%'
+			</if>
+		</foreach>
+		</trim>
+		<include refid="sort" />
+	</select>
+	<!-- 게임정보보기 -->
+	<select id="view" resultType="org.green.domain.GameVO">
+		select * from tbl_game where gnum=#{gnum}
+	</select>
+	<update id="updateCount">
+		update tbl_game set visitcount = visitcount+1 where gnum=#{gnum}
+	</update>
+	<update id="update">
+		update tbl_game set title=#{title}, releasedate=#{releasedate}, price=#{price}, metascore=#{metascore}, 
+		youtube=#{youtube}, content=#{content}, genre=#{genre}, filename=#{fileName}, uploadpath=#{uploadPath}, fullname=#{fullname}, platform=#{platform}, developer=#{developer} where gnum=#{gnum}
+	</update>
+	<delete id="delete">
+		delete from tbl_game where gnum=#{gnum}
+	</delete>
+	<select id="getTopList" resultType="org.green.domain.GameVO">
+		select * from (select * from tbl_game order by visitcount desc) where ROWNUM between 1 and 5
+	</select>
+	<select id="getLastList" resultType="org.green.domain.GameVO">
+		select * from tbl_game where <![CDATA[releasedate >= TO_CHAR(ADD_MONTHS(sysdate, -1), 'yyyy-mm-dd')]]>
+	</select>
+</mapper>

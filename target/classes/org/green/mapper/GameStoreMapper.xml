@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybastis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespase는 경로와 클래스명을 적는다 -->
+<mapper namespace="org.green.mapper.GameStoreMapper">
+	<sql id="criteria">
+		<if test="type != null">
+			<trim prefix="and">
+				<!-- separator 속성 : 사이에 값 추가 -->
+				<foreach collection="typeArr" item="type" separator="or">
+					<if test="type == 'T'.toString()">
+						title like '%'||#{keyword}||'%'
+					</if>
+				</foreach>
+			</trim>
+		</if>
+	</sql>
+	<sql id="sort">
+		<if test="sort == 'title'">
+		ORDER BY title
+		</if>
+		<if test="sort == 'title desc'">
+		ORDER BY title DESC
+		</if>
+	</sql>
+	<insert id="insert">
+		insert into tbl_game_store(snum,gnum, title, store, price, courierfee, storeurl,userid)
+		values(seq_game_num.nextval,#{gnum},#{title},#{store},#{price},#{courierfee},#{storeurl},#{userid})
+	</insert>
+	<select id="getList" resultType="org.green.domain.GameStoreVO">
+		select * from tbl_game_store where gnum=#{gnum} and soldout NOT IN '1' 
+ 		order by price, (CASE WHEN courierfee = '무료' THEN 1 ELSE 2 END)
+	</select>
+	<!-- 판매정보삭제 -->
+	<delete id="delete">
+		delete from tbl_game_store where snum = #{snum}
+	</delete>
+	<!-- 판매정보수정 -->
+	<update id="update">
+		update tbl_game_store set store= #{store}, price = #{price},
+		courierfee = #{courierfee}, soldout = #{soldout}, storeurl = #{storeurl} where snum = #{snum}
+	</update>
+	<!-- 판매정보보기 -->
+	<select id="view" resultType="org.green.domain.GameStoreVO">
+		select * from tbl_game_store where snum=#{snum}
+	</select>
+	<select id="getListWithPaging" resultType="org.green.domain.GameStoreVO">
+		select * from
+		(select Tb.*, rownum rNum from
+    		(select * from tbl_game_store where userid=#{userid}  
+    		<include refid="criteria"></include>
+    		<include refid="sort" />) Tb
+		) where rNum between (#{pageNum}-1)*#{amount}+1 and #{pageNum} * #{amount}
+		<include refid="sort" />
+	</select>
+	<select id="getTotalCount" resultType="int">
+		select count(*) from tbl_game_store where userid=#{userid} <include refid="criteria"></include>
+	</select>
+	<select id="searchLike" resultType="org.green.domain.GameStoreVO">
+		select * from tbl_game_store where userid=#{userid} 
+		<!--  prefix: 앞에 쿼리 추가 suffix : 뒤에 쿼리 추가 -->
+		<trim prefix="and">
+		<!-- separator 속성 : 사이에 값 추가 -->
+		<foreach collection="map" index="key" item="val" separator="or">
+			<if test="key == 'T'.toString()">
+				title like '%'||#{val}||'%'
+			</if>
+		</foreach>
+		</trim>
+		<include refid="sort" />
+	</select>
+	<!-- 판매 중복 체크 -->
+	<select id="storeCheck" resultType="String">
+		select title from tbl_game_store where gnum=#{gnum} and userid=#{userid}
+	</select>
+</mapper>

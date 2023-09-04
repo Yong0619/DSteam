@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybastis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespase는 경로와 클래스명을 적는다 -->
+<mapper namespace="org.green.mapper.MemberMapper">
+<!-- 
+	memberMap이라는 이름을 가지는 resultMap은 
+	MemberVO객체의 인스턴스와 AuthVO객체의 인스턴스들을 구성할 수 있음
+	mybatis는 1:N 관계의 결과를 처리할 수 있는 <resultMap> 태그를 지원
+ -->
+ 	<sql id="criteria">
+		<if test="type != null">
+			<trim prefix="where">
+				<!-- separator 속성 : 사이에 값 추가 -->
+				<foreach collection="typeArr" item="type" separator="or">
+					<if test="type == 'I'.toString()">
+						mem.userid like '%'||#{keyword}||'%'
+					</if>
+					<if test="type == 'N'.toString()">
+						mem.username like '%'||#{keyword}||'%'
+					</if>
+					<if test="type == 'E'.toString()">
+						mem.email like '%'||#{keyword}||'%'
+					</if>
+				</foreach>
+			</trim>
+		</if>
+	</sql>
+	<sql id="criteria1">
+		<if test="type != null">
+			<trim prefix="where">
+				<!-- separator 속성 : 사이에 값 추가 -->
+				<foreach collection="typeArr" item="type" separator="or">
+					<if test="type == 'I'.toString()">
+						userid like '%'||#{keyword}||'%'
+					</if>
+					<if test="type == 'N'.toString()">
+						username like '%'||#{keyword}||'%'
+					</if>
+					<if test="type == 'E'.toString()">
+						email like '%'||#{keyword}||'%'
+					</if>
+				</foreach>
+			</trim>
+		</if>
+	</sql>
+	<sql id="sort">
+		<if test="sort == 'userid'">
+		ORDER BY mem.userid
+		</if>
+		<if test="sort == 'userid desc'">
+		ORDER BY mem.userid DESC
+		</if>
+		<if test="sort == 'regdate desc'">
+		ORDER BY mem.regdate DESC
+		</if>
+		<if test="sort == 'regdate'">
+		ORDER BY mem.regdate
+		</if>
+		<if test="sort == 'username desc'">
+		ORDER BY mem.username desc
+		</if>
+		<if test="sort == 'username'">
+		ORDER BY mem.username
+		</if>
+		<if test="sort == 'email desc'">
+		ORDER BY mem.email desc
+		</if>
+		<if test="sort == 'email'">
+		ORDER BY mem.email
+		</if>
+	</sql>
+	<sql id="sort1">
+		<if test="sort == 'userid'">
+		ORDER BY userid
+		</if>
+		<if test="sort == 'userid desc'">
+		ORDER BY userid DESC
+		</if>
+		<if test="sort == 'regdate desc'">
+		ORDER BY regdate DESC
+		</if>
+		<if test="sort == 'regdate'">
+		ORDER BY regdate
+		</if>
+		<if test="sort == 'username desc'">
+		ORDER BY username desc
+		</if>
+		<if test="sort == 'username'">
+		ORDER BY username
+		</if>
+		<if test="sort == 'email desc'">
+		ORDER BY email desc
+		</if>
+		<if test="sort == 'email'">
+		ORDER BY email
+		</if>
+	</sql>
+	<resultMap type="org.green.domain.MemberVO" id="memberMap">
+		<id property="userid" column="userid" />
+		<result property="userid" column="userid" />
+		<result property="userpw" column="userpw" />
+		<result property="userName" column="userName" />
+		<result property="regDate" column="regDate" />
+		<result property="updateDate" column="updateDate" />
+		<collection property="authList" resultMap="authMap"></collection>
+	</resultMap>
+	<resultMap type="org.green.domain.AuthVO" id="authMap">
+		<result property="userid" column="userid" />
+		<result property="auth" column="auth" />
+	</resultMap>
+	<select id="read" resultMap="memberMap">
+		select mem.userid, userpw, username, enabled, regdate, email, auth 
+		from tbl_member mem left outer join tbl_member_auth auth
+		on mem.userid = auth.userid where mem.userid = #{userid}
+	</select>
+	<!-- 회원가입 -->
+	<insert id="insert">
+		insert into tbl_member(userid,userpw,username,email) values(#{userid},#{userpw},#{userName},#{email})
+	</insert>
+	<!-- 아이디 중복 체크 -->
+	<select id="idCheck" resultType="String">
+		select userid from tbl_member where userid=#{userid}
+	</select>
+	<!-- 이메일 중복 체크 -->
+	<select id="emailCheck" resultType="String">
+		select email from tbl_member where email=#{email}
+	</select>
+	<!-- 아이디 찾기 -->
+	<select id="findId" resultType="org.green.domain.MemberVO">
+		select userid from tbl_member where username=#{userName} and email=#{email}
+	</select>
+	<!-- 임시 비밀번호 발급을 위한 정보 확인  -->
+	<select id="findPw" resultType="String">
+		select userid from tbl_member where userid=#{userid} and email=#{email}
+	</select>
+	<!-- 임시 비밀번호로 변경 -->
+	<update id="changPw">
+		update tbl_member set userpw=#{enc_pw} where userid=#{userid}
+	</update>
+	<!-- 회원정보보기 -->
+	<select id="view" resultType="org.green.domain.MemberVO">
+		select Tb.userid, Tb.userpw, Tb.username, Tb.email, Tb.regdate, Tb.enabled, Ta.auth from tbl_member Tb left join tbl_member_auth Ta on (Tb.userid = Ta.userid) where Tb.userid=#{userid}
+	</select>
+	<!-- 회원정보수정 -->
+	<update id="update">
+		update tbl_member set userpw=#{userpw}, email=#{email} where userid=#{userid}
+	</update>
+	<!-- 관리자 회원정보수정 -->
+	<update id="adminUpdate">
+		update tbl_member set username=#{userName}, email=#{email} where userid=#{userid}
+	</update>
+	<!-- 회원탈퇴 -->
+	<delete id="delete">
+		delete from tbl_member where userid=#{userid} and username=#{userName} and email=#{email}
+	</delete>
+	<select id="getListWithPaging" resultType="org.green.domain.MemberVO">
+		select * from
+		(select Tb.*, rownum rNum from
+    		(select mem.userid, mem.userpw, mem.username, mem.email, mem.regdate, mem.enabled, auth.auth from tbl_member mem left join tbl_member_auth auth on(mem.userid = auth.userid)
+    		<include refid="criteria"></include>
+    		<include refid="sort" />) Tb
+		) where rNum between (#{pageNum}-1)*#{amount}+1 and #{pageNum} * #{amount}
+		<include refid="sort1" />
+	</select>
+	<select id="getTotalCount" resultType="int">
+		select count(*) from tbl_member <include refid="criteria1"></include>
+	</select>
+	<select id="searchMember" resultType="org.green.domain.MemberVO">
+		select * from tbl_member
+		<!--  prefix: 앞에 쿼리 추가 suffix : 뒤에 쿼리 추가 -->
+		<trim prefix="where">
+		<!-- separator 속성 : 사이에 값 추가 -->
+		<foreach collection="map" index="key" item="val" separator="or">
+			<if test="key == 'I'.toString()">
+				userid like '%'||#{val}||'%'
+			</if>
+			<if test="key == 'N'.toString()">
+				username like '%'||#{val}||'%'
+			</if>
+			<if test="key == 'E'.toString()">
+				email like '%'||#{val}||'%'
+			</if>
+		</foreach>
+		</trim>
+		<include refid="sort" />
+	</select>
+</mapper>

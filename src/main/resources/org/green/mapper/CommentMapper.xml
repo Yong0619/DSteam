@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybastis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespase는 경로와 클래스명을 적는다 -->
+<mapper namespace="org.green.mapper.CommentMapper">
+	<insert id="insert">
+		insert into tbl_comment(cnum, gnum, userid, regdate, content)
+		values(seq_table_num.nextval,#{gnum},#{userid},sysdate,#{content})
+	</insert>
+	<select id="getList" resultType="org.green.domain.CommentVO">
+		select * from tbl_comment where gnum=#{gnum} order by regdate desc
+	</select>
+	<update id="update">
+		update tbl_comment set content=#{content} where cnum=#{cnum}
+	</update>
+	<delete id="delete">
+		delete from tbl_comment where cnum=#{cnum}
+	</delete>
+	<insert id="insert2">
+		insert into tbl_comment(cnum, gnum, userid, regdate, content)
+		values(seq_table_num.nextval,#{gnum},#{userid},sysdate,#{content})
+	</insert>
+	<select id="getList2" resultType="org.green.domain.CommentVO">
+		select * from tbl_comment where gnum=#{gnum}
+	</select>
+	<update id="update2">
+		update tbl_comment set content=#{content} where cnum=#{cnum}
+	</update>
+	<delete id="delete2">
+		delete from tbl_comment where cnum=#{cnum}
+	</delete>
+	<insert id="insert3">
+		insert into tbl_comment(cnum, gnum, userid, regdate, content)
+		values(seq_table_num.nextval,#{gnum},#{userid},sysdate,#{content})
+	</insert>
+	<select id="getList3" resultType="org.green.domain.CommentVO">
+		select * from tbl_comment where gnum=#{gnum}
+	</select>
+	<update id="update3">
+		update tbl_comment set content=#{content} where cnum=#{cnum}
+	</update>
+	<delete id="delete3">
+		delete from tbl_comment where cnum=#{cnum}
+	</delete>
+</mapper>

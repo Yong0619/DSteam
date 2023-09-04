@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybastis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespase는 경로와 클래스명을 적는다 -->
+<mapper namespace="org.green.mapper.BoardAttachMapper">
+	<!-- id는 메소드명과 동일하게 -->
+	<insert id="insert">
+		insert into tbl_attach(uuid, uploadpath, filename, filetype, bnum)
+		values(#{uuid}, #{uploadPath}, #{fileName}, #{fileType}, #{bnum})
+	</insert>
+	<delete id="delete">
+		delete from tbl_attach where uuid = #{uuid} 
+	</delete>
+	<select id="findByBnum" resultType="org.green.domain.BoardAttachVO">
+		select * from tbl_attach where bnum = #{bnum}
+	</select>
+	<delete id="deleteAll">
+		delete from tbl_attach where bnum = #{bnum}
+	</delete>
+</mapper>
