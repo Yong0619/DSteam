@@ -30,7 +30,7 @@
 					<td class="form-control form-width1 disable-div">택배비</td>
 					<td class="form-control form-width14 disable-div">판매링크</td>
 					<td class="form-control form-width13 disable-div">판매여부</td>
-					<td class="form-control form-width13 disable-div" id="ml-td1">판매정보수정</td>
+					<td class="form-control form-width3 disable-div" id="ml-td1">판매정보수정</td>
 				</tr>
 				<c:forEach items="${list}" var="list">
 					<form action="storemodify" method="post">
