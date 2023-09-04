@@ -90,7 +90,7 @@
 										<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 										<input type="hidden" name="cnum" value="${ commentlist.cnum }"/>
 										<input type="hidden" name="gnum" value="${ view.gnum}" />
-										<button type="submit" onclick="delete()" class="commentflexBtn">X</button>
+										<button type="submit" onclick="delete()" class="commentflexBtn" style="cursor: pointer;">X</button>
 									</form>
 									</c:if>
 							</div>

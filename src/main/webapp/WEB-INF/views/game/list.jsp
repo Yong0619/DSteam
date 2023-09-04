@@ -5,7 +5,7 @@
 		<div class="pd-top1">
 		<sec:authentication property="principal" var="pinfo"/>
 			<h2 id="m-list-h2" class="fw-bold pd-bt1">게임 목록</h2>
-			<!-- 검색 추가 하기 -->
+			<!-- 검색 및 정렬  -->
 			<div class="search-div2">
 				<sec:authorize access="hasRole('ROLE_ADMIN')">
 					<button type="button" onclick="location.href='/game/register'" class="btn-height1 btn-width3 btn-border1">등록</button>	

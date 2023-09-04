@@ -13,7 +13,6 @@
 			form.userid.focus();
 			return false;
 		}
-		
 		if(form.userpw.value == "") {
 			alert("비밀번호를 입력하세요");
 			form.userpw.focus();
